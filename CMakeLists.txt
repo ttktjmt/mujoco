@@ -53,8 +53,15 @@ endif()
 
 if(EMSCRIPTEN)
   option(MUJOCO_BUILD_TESTS_WASM "Build tests for WASM bindings" ON)
+  # MUJOCO_WASM_THREADS is declared here (rather than in wasm/CMakeLists.txt)
+  # so that the compile definition propagates to engine sources such as
+  # src/user/user_model.cc which use it to guard pthread usage at compile time.
+  option(MUJOCO_WASM_THREADS "Build WASM bindings with multi-threading support" ON)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -O3 -pthread -fexceptions")
+  if(MUJOCO_WASM_THREADS)
+    add_compile_definitions(MUJOCO_WASM_THREADS)
+  endif()
 endif()
 
 if(APPLE AND (MUJOCO_BUILD_EXAMPLES OR MUJOCO_BUILD_SIMULATE))
