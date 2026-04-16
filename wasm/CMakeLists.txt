@@ -31,7 +31,11 @@ if(NOT MUJOCO_WASM_FILES)
     message(FATAL_ERROR "No source files found in codegen/generated/")
 endif()
 
-option(MUJOCO_WASM_THREADS "Build with multi-threading support" ON)
+# MUJOCO_WASM_THREADS is declared and defined in the top-level CMakeLists.txt
+# so that the flag is visible to all engine sources at compile time.
+# Here we only apply the additional Emscripten *linker* flags required for the
+# multi-threaded build (pre-allocated worker pool for SharedArrayBuffer-based
+# pthreads).
 
 # Set Emscripten linker flags
 set(EMCC_LINKER_FLAGS
@@ -53,7 +57,6 @@ if(MUJOCO_WASM_THREADS)
         "-pthread"
         "-s PTHREAD_POOL_SIZE=navigator.hardwareConcurrency"
     )
-    add_definitions(-DMUJOCO_WASM_THREADS)
 endif()
 string (REPLACE ";" " " EMCC_LINKER_FLAGS_STR "${EMCC_LINKER_FLAGS}")
 

@@ -1,15 +1,15 @@
 {
-  "name": "@mujoco/mujoco",
+  "name": "@ttktjmt/mujoco",
   "version": "0.0.0",
-  "description": "MuJoCo WASM bindings",
+  "description": "MuJoCo WASM bindings (patched: fix ST WASM deadlock on mj_loadXML)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/google-deepmind/mujoco.git",
+    "url": "git+https://github.com/ttktjmt/mujoco.git",
     "directory": "wasm"
   },
-  "homepage": "https://github.com/google-deepmind/mujoco/tree/main/wasm",
+  "homepage": "https://github.com/ttktjmt/mujoco/tree/main/wasm",
   "bugs": {
-    "url": "https://github.com/google-deepmind/mujoco/issues"
+    "url": "https://github.com/ttktjmt/mujoco/issues"
   },
   "keywords": [
     "mujoco",

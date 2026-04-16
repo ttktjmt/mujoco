@@ -2481,8 +2481,18 @@ void mjCModel::LengthRange(mjModel* m, mjData* data) {
 
   const auto nthread = NumCompilerThreads(cnt);
 
+  // In the single-threaded WASM build, -pthread is present in the binary but
+  // no worker pool is pre-allocated. Calling pthread_create from the main
+  // browser thread blocks on a condvar waiting for workers that can never be
+  // spawned, causing a deadlock. Force the serial path in that configuration.
+#if defined(__EMSCRIPTEN__) && !defined(MUJOCO_WASM_THREADS)
+  constexpr bool kWasmSingleThreaded = true;
+#else
+  constexpr bool kWasmSingleThreaded = false;
+#endif
+
   // single thread
-  if (!compiler.usethread || cnt < 2 || nthread < 2) {
+  if (kWasmSingleThreaded || !compiler.usethread || cnt < 2 || nthread < 2) {
     char err[200];
     for (int i=0; i < m->nu; i++) {
       if (!mj_setLengthRange(m, data, i, &compiler.LRopt, err, 200)) {
@@ -4773,8 +4783,18 @@ void mjCModel::CompileMeshesAndTextures(const mjVFS* vfs) {
   std::vector<std::string> mesh_warningtext(nmesh);
   std::vector<std::string> texture_warningtext(ntexture);
 
+  // In the single-threaded WASM build, -pthread is present in the binary but
+  // no worker pool is pre-allocated. Calling pthread_create from the main
+  // browser thread blocks on a condvar waiting for workers that can never be
+  // spawned, causing a deadlock. Force the serial path in that configuration.
+#if defined(__EMSCRIPTEN__) && !defined(MUJOCO_WASM_THREADS)
+  constexpr bool kWasmSingleThreaded = true;
+#else
+  constexpr bool kWasmSingleThreaded = false;
+#endif
+
   // If no pool provided or too few total tasks, run serially
-  if (!compiler.usethread || total_tasks < 2) {
+  if (kWasmSingleThreaded || !compiler.usethread || total_tasks < 2) {
     // Compile meshes serially
     for (int i = 0; i < nmesh; i++) {
       CompileMesh(meshes_[i], vfs, mesh_exception, mesh_except_mutex,

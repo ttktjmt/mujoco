@@ -2,6 +2,26 @@
 Changelog
 =========
 
+Version 3.7.1 (April 15, 2026)
+------------------------------
+
+Bug fixes
+^^^^^^^^^
+
+1. Fixed a deadlock when loading XML models in the single-threaded WASM build
+   (``@mujoco/mujoco`` default import, not ``@mujoco/mujoco/mt``).
+   MuJoCo's compiler internally creates a ``mujoco::user::ThreadPool`` to
+   parallelise mesh and texture processing. In the single-threaded build
+   the Emscripten pthread runtime is present but has no pre-allocated worker
+   pool, so ``pthread_create`` needs to return to the browser event loop to
+   spawn a Web Worker. Because ``mj_loadXML`` was called synchronously on the
+   main thread it blocked on a ``pthread_cond_wait`` before that could happen,
+   causing an unrecoverable deadlock. The fix propagates the
+   ``MUJOCO_WASM_THREADS`` compile definition from the top-level build to all
+   engine source files and uses it to bypass the parallel compilation paths in
+   ``mjCModel::CompileMeshesAndTextures`` and ``mjCModel::SetLengthRange``
+   when running in a single-threaded WASM environment.
+
 Version 3.7.0 (April 14, 2026)
 ------------------------------
 
