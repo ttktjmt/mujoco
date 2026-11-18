@@ -322,7 +322,7 @@ package_wasm() {
     cp wasm/package.npm.json wasm/dist/package.json
     cp wasm/README.md wasm/dist/README.md
     VERSION="${VERSION:-${GITHUB_REF#refs/tags/}}"
-    npm --prefix wasm/dist version "${VERSION}" --no-git-tag-version
+    npm --prefix wasm/dist version "${VERSION}" --no-git-tag-version --allow-same-version
     npm pack --dry-run ./wasm/dist
     npm publish ./wasm/dist --access public --provenance
 }
